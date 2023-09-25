@@ -1,4 +1,4 @@
-module stimprint
+module github.com/o-fl0w/stimprint
 
 go 1.21
 
