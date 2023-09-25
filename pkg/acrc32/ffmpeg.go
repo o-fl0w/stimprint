@@ -3,8 +3,8 @@ package acrc32
 import (
 	"context"
 	"fmt"
+	"github.com/o-fl0w/stimprint/internal/bin"
 	"regexp"
-	"stimprint/internal/bin"
 )
 
 var r = regexp.MustCompile("CRC32=(\\w{8})")

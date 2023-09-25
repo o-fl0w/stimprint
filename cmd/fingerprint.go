@@ -2,12 +2,12 @@ package cmd
 
 import (
 	"context"
+	"github.com/o-fl0w/stimprint/internal/slogger"
+	"github.com/o-fl0w/stimprint/pkg/acrc32"
+	"github.com/o-fl0w/stimprint/pkg/oshash"
 	"github.com/spf13/cobra"
 	"log/slog"
 	"path/filepath"
-	"stimprint/internal/slogger"
-	"stimprint/pkg/acrc32"
-	"stimprint/pkg/oshash"
 	"sync"
 )
 

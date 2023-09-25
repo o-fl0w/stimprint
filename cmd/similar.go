@@ -3,14 +3,14 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/o-fl0w/stimprint/internal/slogger"
+	"github.com/o-fl0w/stimprint/pkg/chromaprint"
+	"github.com/o-fl0w/stimprint/pkg/metadata"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
 	"log/slog"
 	"os"
 	"path/filepath"
-	"stimprint/internal/slogger"
-	"stimprint/pkg/chromaprint"
-	"stimprint/pkg/metadata"
 )
 
 var similarCmd = &cobra.Command{

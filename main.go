@@ -1,7 +1,7 @@
 package main
 
 import (
-	"stimprint/cmd"
+	"github.com/o-fl0w/stimprint/cmd"
 )
 
 func main() {

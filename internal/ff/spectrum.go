@@ -3,7 +3,7 @@ package ff
 import (
 	"context"
 	"fmt"
-	"stimprint/internal/bin"
+	"github.com/o-fl0w/stimprint/internal/bin"
 )
 
 func GenerateSpectrum(ctx context.Context, ffmpeg string, audioFilePath string, outFilePath string, outputImageWidth int, outputImageHeight int, maxFrequency int) error {

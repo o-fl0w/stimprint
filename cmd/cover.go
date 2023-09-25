@@ -2,12 +2,12 @@ package cmd
 
 import (
 	"context"
+	"github.com/o-fl0w/stimprint/internal/slogger"
+	"github.com/o-fl0w/stimprint/pkg/cover"
 	"github.com/spf13/cobra"
 	"log/slog"
 	"os"
 	"path/filepath"
-	"stimprint/internal/slogger"
-	"stimprint/pkg/cover"
 	"time"
 )
 

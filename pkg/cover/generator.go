@@ -3,13 +3,13 @@ package cover
 import (
 	"context"
 	"fmt"
+	"github.com/o-fl0w/stimprint/internal/ff"
+	"github.com/o-fl0w/stimprint/internal/fileutil"
+	"github.com/o-fl0w/stimprint/internal/slogger"
+	"github.com/o-fl0w/stimprint/pkg/metadata"
 	"golang.org/x/sync/errgroup"
 	"math/rand"
 	"os"
-	"stimprint/internal/ff"
-	"stimprint/internal/fileutil"
-	"stimprint/internal/slogger"
-	"stimprint/pkg/metadata"
 )
 
 type Params struct {

@@ -2,7 +2,7 @@ package chromaprint
 
 import (
 	"context"
-	"stimprint/internal/bin"
+	"github.com/o-fl0w/stimprint/internal/bin"
 )
 
 func Calculate(ctx context.Context, ffmpeg string, audioFilePath string) ([]byte, error) {

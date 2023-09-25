@@ -1,7 +1,7 @@
 package cover
 
 import (
-	"stimprint/internal/ff"
+	"github.com/o-fl0w/stimprint/internal/ff"
 )
 
 var defaultParams = Params{

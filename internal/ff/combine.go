@@ -3,8 +3,8 @@ package ff
 import (
 	"context"
 	"fmt"
+	"github.com/o-fl0w/stimprint/internal/bin"
 	"regexp"
-	"stimprint/internal/bin"
 	"strconv"
 	"strings"
 )

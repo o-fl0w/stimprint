@@ -3,7 +3,7 @@ package metadata
 import (
 	"context"
 	"encoding/json"
-	"stimprint/internal/bin"
+	"github.com/o-fl0w/stimprint/internal/bin"
 	"strconv"
 	"time"
 )
