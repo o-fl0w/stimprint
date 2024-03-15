@@ -3,8 +3,8 @@ module github.com/o-fl0w/stimprint
 go 1.21
 
 require (
-	github.com/lmittmann/tint v1.0.2
-	golang.org/x/sync v0.3.0
+	github.com/lmittmann/tint v1.0.4
+	golang.org/x/sync v0.6.0
 )
 
 require (

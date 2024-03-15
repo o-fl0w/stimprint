@@ -51,7 +51,7 @@ func cropDetect(ctx context.Context, ffmpeg string, imageFilePath string) (cropD
 		"-v", "info",
 		"-i", imageFilePath,
 		"-filter_complex", "color=black,format=rgba[b];[b][0]scale2ref[b][i];[b][i]overlay[bi];[bi]cropdetect=round=0:limit=0",
-		"-frames:v", "2",
+		"-frames:v", "3",
 		"-f", "null", "-",
 	}
 	out, err := bin.Path(ffmpeg).CombinedOutput(ctx, args...)
