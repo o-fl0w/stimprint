@@ -2,12 +2,16 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"github.com/o-fl0w/stimprint/internal/slogger"
 	"github.com/o-fl0w/stimprint/pkg/cover"
+	"github.com/o-fl0w/stimprint/pkg/cover/param"
 	"github.com/o-fl0w/stimprint/pkg/metadata"
 	"github.com/spf13/cobra"
 	"log/slog"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -20,7 +24,7 @@ var coverCmd = &cobra.Command{
 }
 
 var (
-	coverParams            = cover.DefaultParams()
+	coverParams            = param.DefaultCoverParams()
 	overwriteExistingFiles = false
 )
 
@@ -40,8 +44,8 @@ func init() {
 
 	coverCmd.Flags().IntVar(&coverParams.FrequencyLimit, "freqLimit", coverParams.FrequencyLimit, "Frequency ceiling of spectrum")
 
-	//var freqHints string
-	coverCmd.Flags().Var(&coverParams.FrequencyHints, "freqHints", "Draw lines at given frequencies, hz:color;hz:color...")
+	fhv := frequencyHintsValue{dest: &coverParams}
+	coverCmd.Flags().Var(&fhv, "freqHints", "Draw lines at given frequencies, hz:color;hz:color...")
 
 	_ = coverCmd.MarkFlagRequired("out")
 	hideHelp(coverCmd)
@@ -73,4 +77,37 @@ func coverCmdRun(_ *cobra.Command, args []string) {
 	duration := time.Since(start)
 
 	slogger.Ctx(ctx).Info("Done", "duration", duration)
+}
+
+type frequencyHintsValue struct {
+	dest *param.Cover
+}
+
+func (f *frequencyHintsValue) String() string {
+	kvs := make([]string, len(f.dest.FrequencyHints))
+	for i, fh := range f.dest.FrequencyHints {
+		kvs[i] = fmt.Sprintf("%d:%s", fh.Hz, fh.Color)
+	}
+	return strings.Join(kvs, ";")
+}
+
+func (f *frequencyHintsValue) Set(s string) error {
+	kvs := strings.Split(s, ";")
+	f.dest.FrequencyHints = make([]param.FrequencyHint, len(kvs))
+	for i, kv := range kvs {
+		ss := strings.Split(kv, ":")
+		hz, err := strconv.Atoi(ss[0])
+		if err != nil {
+			return err
+		}
+		f.dest.FrequencyHints[i] = param.FrequencyHint{
+			Hz:    hz,
+			Color: ss[1],
+		}
+	}
+	return nil
+}
+
+func (f *frequencyHintsValue) Type() string {
+	return "string"
 }

@@ -3,26 +3,14 @@ package ff
 import (
 	"context"
 	"fmt"
+	"github.com/o-fl0w/stimprint/pkg/cover/param"
 	"path/filepath"
 	"strings"
 )
 
 var overlayWaveAndSpectrumFilter = "[wave][spectrum]overlay=format=rgb"
 
-type Params struct {
-	FrequencyLimit         int
-	FrequencyHints         FrequencyHints
-	OutputImageWidth       int
-	OutputImageHeight      int
-	WaveColorLeft          string
-	WaveColorRight         string
-	WaveColorOverlap       string
-	WaveColorTriphase      string
-	WaveColorTriphaseAlpha float64
-	WaveColorMono          string
-}
-
-func GenerateCover(ctx context.Context, params Params, audioFilePath string, numChannels int, outputFilePath string) error {
+func GenerateCover(ctx context.Context, params param.Cover, audioFilePath string, numChannels int, outputFilePath string) error {
 	switch numChannels {
 	case 1:
 		return generateMonoCover(ctx, params, audioFilePath, outputFilePath)
@@ -33,7 +21,7 @@ func GenerateCover(ctx context.Context, params Params, audioFilePath string, num
 	}
 }
 
-func generateTriCover(ctx context.Context, params Params, inputFilePath string, outputFilePath string) error {
+func generateTriCover(ctx context.Context, params param.Cover, inputFilePath string, outputFilePath string) error {
 	colorLeft := hex2rgb(params.WaveColorLeft)
 	colorRight := hex2rgb(params.WaveColorLeft)
 	colorOverlap := hex2rgb(params.WaveColorOverlap)
@@ -94,7 +82,7 @@ func generateTriCover(ctx context.Context, params Params, inputFilePath string, 
 	return ffExec(ctx, inputFilePath, filter, outputFilePath)
 }
 
-func generateMonoCover(ctx context.Context, params Params, inputFilePath string, outputFilePath string) error {
+func generateMonoCover(ctx context.Context, params param.Cover, inputFilePath string, outputFilePath string) error {
 	filterParts := []string{
 		spectrumFilter(params),
 		fmt.Sprintf("[0:a]showwavespic=s=%dx%d:split_channels=0:colors=%s,format=rgba[wave];",
@@ -108,7 +96,7 @@ func generateMonoCover(ctx context.Context, params Params, inputFilePath string,
 	return ffExec(ctx, inputFilePath, filter, outputFilePath)
 }
 
-func frequencyLineFilters(params Params) string {
+func frequencyLineFilters(params param.Cover) string {
 	if len(params.FrequencyHints) == 0 {
 		return ""
 	}
@@ -119,12 +107,12 @@ func frequencyLineFilters(params Params) string {
 	return "[ws];[ws]" + strings.Join(lines, ",")
 }
 
-func frequencyLine(params Params, fh FrequencyHint) string {
+func frequencyLine(params param.Cover, fh param.FrequencyHint) string {
 	y := float64(params.OutputImageHeight) - float64(fh.Hz)/float64(params.FrequencyLimit)*float64(params.OutputImageHeight) - 1.0
 	return fmt.Sprintf("drawbox=y=%f:h=2:c=%s:t=fill:replace=1", y, fh.Color)
 }
 
-func spectrumFilter(params Params) string {
+func spectrumFilter(params param.Cover) string {
 	return fmt.Sprintf(
 		"[0:a]showspectrumpic=s=%dx%d:legend=0:mode=combined:fscale=lin:start=0:stop=%d:scale=lin:drange=20:limit=0,colorkey=0x000000:0.1:0[spectrum];",
 		params.OutputImageWidth,
