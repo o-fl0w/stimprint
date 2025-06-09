@@ -3,7 +3,7 @@ package metadata
 import (
 	"context"
 	"encoding/json"
-	"github.com/o-fl0w/stimprint/internal/bin"
+	"github.com/o-fl0w/stimprint/internal/ff"
 	"strconv"
 	"time"
 )
@@ -28,16 +28,13 @@ type Metadata struct {
 	Artist   string
 }
 
-func GetMetadata(ctx context.Context, ffprobe string, audioFilePath string) (Metadata, error) {
+func GetMetadata(ctx context.Context, audioFilePath string) (Metadata, error) {
 	args := []string{
-		"-v", "error",
-		"-print_format", "json",
 		"-show_entries",
 		"stream=channels:format=duration:format_tags=title,artist",
-		audioFilePath,
 	}
 
-	out, err := bin.Path(ffprobe).Output(ctx, args...)
+	out, err := ff.ProbeOutput(ctx, audioFilePath, args)
 
 	if err != nil {
 		return Metadata{}, err

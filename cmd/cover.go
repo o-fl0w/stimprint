@@ -4,10 +4,10 @@ import (
 	"context"
 	"github.com/o-fl0w/stimprint/internal/slogger"
 	"github.com/o-fl0w/stimprint/pkg/cover"
+	"github.com/o-fl0w/stimprint/pkg/metadata"
 	"github.com/spf13/cobra"
 	"log/slog"
 	"os"
-	"path/filepath"
 	"time"
 )
 
@@ -20,12 +20,13 @@ var coverCmd = &cobra.Command{
 }
 
 var (
-	coverParams = cover.DefaultParams()
+	coverParams            = cover.DefaultParams()
+	overwriteExistingFiles = false
 )
 
 func init() {
 
-	coverCmd.Flags().BoolVar(&coverParams.OverwriteExistingFiles, "overwrite", coverParams.OverwriteExistingFiles, "Overwrite existing files")
+	coverCmd.Flags().BoolVar(&overwriteExistingFiles, "overwrite", overwriteExistingFiles, "Overwrite existing files")
 
 	coverCmd.Flags().IntVar(&coverParams.OutputImageWidth, "width", coverParams.OutputImageWidth, "Width of output image")
 	coverCmd.Flags().IntVar(&coverParams.OutputImageHeight, "height", coverParams.OutputImageHeight, "Height of output image")
@@ -54,24 +55,16 @@ func coverCmdRun(_ *cobra.Command, args []string) {
 	inputFilePath := args[0]
 	outputFilePath := args[1]
 
-	//err := g.FrequencyHints.Set(freqHints)
-	//if err != nil {
-	//	flag.Usage()
-	//	log.Fatalf("error parsing frequency hints: %v", err)
-	//}
+	md, err := metadata.GetMetadata(ctx, inputFilePath)
+	if err != nil {
+		slogger.Ctx(ctx).Error("Failed to get audio file metadata", "error", err)
+		return
+	}
 
-	coverParams.Ffprobe = filepath.Join(ffmpegRoot, "ffprobe")
-	coverParams.Ffmpeg = filepath.Join(ffmpegRoot, "ffmpeg")
-
-	//outputFilename := outputFilePath
-	//if outputFilename == "" {
-	//	outputFilename = fileutil.MkRandomTmpFilePath()
-	//}
-
-	slogger.Ctx(ctx).Info("Generating...", "input", inputFilePath, "output", outputFilePath)
+	slogger.Ctx(ctx).Info("Generating...", "input", inputFilePath, "channels", md.Channels, "output", outputFilePath)
 
 	start := time.Now()
-	err := cover.Generate(ctx, coverParams, inputFilePath, 0, outputFilePath)
+	err = cover.Generate(ctx, coverParams, inputFilePath, md.Channels, outputFilePath, overwriteExistingFiles)
 
 	if err != nil {
 		slogger.Ctx(ctx).Error("Error generating", "error", err)

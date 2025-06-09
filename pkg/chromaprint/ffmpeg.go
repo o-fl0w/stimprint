@@ -2,17 +2,13 @@ package chromaprint
 
 import (
 	"context"
-	"github.com/o-fl0w/stimprint/internal/bin"
+	"github.com/o-fl0w/stimprint/internal/ff"
 )
 
-func Calculate(ctx context.Context, ffmpeg string, audioFilePath string) ([]byte, error) {
-	args := []string{
-		"-v", "error",
-		"-y",
-		"-i", audioFilePath,
+func Calculate(ctx context.Context, audioFilePath string) ([]byte, error) {
+	bs, err := ff.Output(ctx, []string{audioFilePath}, []string{
 		"-f", "chromaprint",
-		"-fp_format", "raw", "-"}
-	bs, err := bin.Path(ffmpeg).Output(ctx, args...)
+		"-fp_format", "raw", "-"})
 	if err != nil {
 		return nil, err
 	}

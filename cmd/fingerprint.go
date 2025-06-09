@@ -3,17 +3,17 @@ package cmd
 import (
 	"context"
 	"github.com/o-fl0w/stimprint/internal/slogger"
-	"github.com/o-fl0w/stimprint/pkg/acrc32"
-	"github.com/o-fl0w/stimprint/pkg/oshash"
+	"github.com/o-fl0w/stimprint/pkg/hash"
 	"github.com/spf13/cobra"
 	"log/slog"
-	"path/filepath"
 	"sync"
+	"time"
 )
 
 var (
-	isRequestedCrc32  bool
-	isRequestedOsHash bool
+	isRequestedCrc32   bool
+	isRequestedMurmur3 bool
+	isRequestedOsHash  bool
 )
 
 var fingerprintCmd = &cobra.Command{
@@ -25,7 +25,8 @@ var fingerprintCmd = &cobra.Command{
 }
 
 func init() {
-	fingerprintCmd.Flags().BoolVar(&isRequestedCrc32, "acrc32", true, "Calculate CRC32 of audio signal")
+	fingerprintCmd.Flags().BoolVar(&isRequestedCrc32, "crc32", true, "Calculate CRC32 hash of audio signal")
+	fingerprintCmd.Flags().BoolVar(&isRequestedMurmur3, "murmur3", true, "Calculate murmur3 hash of audio signal")
 	fingerprintCmd.Flags().BoolVar(&isRequestedOsHash, "oshash", true, "Calculate oshash of file")
 
 	hideHelp(fingerprintCmd)
@@ -36,30 +37,53 @@ func fingerprintCmdRun(_ *cobra.Command, args []string) {
 	ctx := slogger.WithContext(context.TODO(), slog.Default())
 
 	file := args[0]
-	ffmpeg := filepath.Join(ffmpegRoot, "ffmpeg")
 
 	wg := sync.WaitGroup{}
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		aCrc32, err := acrc32.Calculate(ctx, ffmpeg, file)
-		if err != nil {
-			slogger.Ctx(ctx).Error("Error generating audio CRC32", "error", err)
-			return
-		}
-		slogger.Ctx(ctx).Info("Generated audio CRC32", "aCrc32", aCrc32)
-	}()
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		hash, err := oshash.FromFilePath(file)
-		if err != nil {
-			slogger.Ctx(ctx).Error("Error generating oshash", "error", err)
-			return
-		}
-		slogger.Ctx(ctx).Info("Generated oshash", "oshash", hash)
-	}()
+	if isRequestedCrc32 {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			start := time.Now()
+			h, err := hash.CalculateAudioHash(ctx, file, "CRC32")
+			duration := time.Since(start)
+			if err != nil {
+				slogger.Ctx(ctx).Error("Error calculating audio CRC32 hash", "error", err)
+				return
+			}
+			slogger.Ctx(ctx).Info("Calculated audio CRC32", "CRC32", h, "duration", duration.Truncate(time.Millisecond))
+		}()
+	}
+
+	if isRequestedOsHash {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			start := time.Now()
+			h, err := hash.OsHashFromFilePath(file)
+			duration := time.Since(start)
+			if err != nil {
+				slogger.Ctx(ctx).Error("Error calculating oshash", "error", err)
+				return
+			}
+			slogger.Ctx(ctx).Info("Calculated file oshash", "oshash", h, "duration", duration.Truncate(time.Millisecond))
+		}()
+	}
+
+	if isRequestedMurmur3 {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			start := time.Now()
+			h, err := hash.CalculateAudioHash(ctx, file, "murmur3")
+			duration := time.Since(start)
+			if err != nil {
+				slogger.Ctx(ctx).Error("Error calculating audio murmur3", "error", err)
+				return
+			}
+			slogger.Ctx(ctx).Info("Calculated audio murmur3 hash", "murmur3", h, "duration", duration.Truncate(time.Millisecond))
+		}()
+	}
 
 	wg.Wait()
 }

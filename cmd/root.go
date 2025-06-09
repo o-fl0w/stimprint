@@ -17,14 +17,6 @@ var rootCmd = &cobra.Command{
 	},
 }
 
-var (
-	ffmpegRoot string
-)
-
-func init() {
-	rootCmd.PersistentFlags().StringVar(&ffmpegRoot, "ffmpegRoot", ``, "Path to ffmpeg bin dir (if none provided ffmpeg must be available through $PATH)")
-}
-
 func Execute() {
 	slog.SetDefault(slog.New(
 		tint.NewHandler(os.Stderr, &tint.Options{

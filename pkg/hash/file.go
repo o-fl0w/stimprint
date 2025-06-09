@@ -1,4 +1,4 @@
-package oshash
+package hash
 
 import (
 	"bytes"
@@ -9,7 +9,7 @@ import (
 
 const chunkSize = 65536 // 64k
 
-func FromFilePath(filePath string) (string, error) {
+func OsHashFromFilePath(filePath string) (string, error) {
 	f, err := os.Open(filePath)
 	if err != nil {
 		return "", err
@@ -20,12 +20,12 @@ func FromFilePath(filePath string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	hash, err := FromFile(f, fi.Size())
+	hash, err := OsHashFromFile(f, fi.Size())
 	sHash := fmt.Sprintf("%016x", hash)
 	return sHash, nil
 }
 
-func FromFile(file *os.File, size int64) (string, error) {
+func OsHashFromFile(file *os.File, size int64) (string, error) {
 	if size < chunkSize {
 		return "", fmt.Errorf("file is too small")
 	}
